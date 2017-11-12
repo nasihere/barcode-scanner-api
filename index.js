@@ -11,64 +11,74 @@ app.use(bodyParser.json());
 var port = process.env.PORT || 3002;        // set our port
 var router = express.Router();              // get an instance of the express Router
 var db = [];
-router.get('/new', function(req, res) {
-    
-    var barcode_no = req.query.barcode;
-    var info = req.query.info;
-    
-    var dataObj = {
-        barcode_no: barcode_no,
-        status: 1,
-        datetime: new Date(),
-        scanned: 0,
-        info: info || 'no information'
-    };
-    writeJsonFile(dataObj, function(err) {
-        if (err) {
-            res.status(404).send('JSON file error');
-            return;
-        }
-         readJsonFileSync();
-        res.json({ message: 'Barcode saved' });  
-    }); 
-    
-});
-router.get('/inactive', function(req, res) {
-    
-    var barcode_no = req.query.barcode;
-    var info = req.query.info;
-    
-    var dataObj = {
-        barcode_no: barcode_no,
-        status: 0,
-        scannedTime: new Date()
-        
-    };
-    writeJsonFile(dataObj, function(err) {
-        if (err) {
-            res.status(404).send('JSON file error');
-            return;
-        }
-        
-        res.json({ message: 'Barcode saved' });  
-        readJsonFileSync();
-    }); 
-    
-});
+
 router.get('/', function(req, res) {
     res.json(db);  
 });
-function readJsonFileSync(){
+router.get('/scan', function(req, res) {
     
-    db = [];
-    lineReader.eachLine(file, function(line, last) {
-        db.push(line)
-    });
+    var barcode_no = req.query.barcode;
+    
+    var dataObj = {
+        barcode_no: barcode_no,
+        datetime: new Date(),
+        scanned: 0
+    };
+    findUpdateScanCode(barcode_no, dataObj, res);
+    
+    
+    
+});
+function findUpdateScanCode(barcodeNo, dataObj, res) {
+    const tempDB = db;
+    let output = 0;
+    db = tempDB.map(item => {
+        if (item.barcode_no === barcodeNo && item.scanned === 0) {
+            item.scanned = 1;
+            output = 1
+        }
+        else  if (item.barcode_no === barcodeNo && item.scanned === 1) {
+            item.scanned = 2;
+            output = 2;
+        }
+        else  if (item.barcode_no === barcodeNo && item.scanned === 2) {
+            item.scanned = 2;
+            output = 2;
+        }
+        return item;
+    })
+    if (output === 0) {
+        db.push(dataObj); 
+        writeJson(db, null);
+        
+        res.json({ message: 'BEEP' }); 
+        
+    }
+    else {
+        writeJson(db, null);
+        if (output === 1) {
+            res.json({ message: 'Scanned' });  
+        }
+        else if (output === 2) {
+            res.json({ message: 'Expired' });  
+        }
+    
+    }
+}
+function readJsonFileSync(){
+    try {
+        db = JSON.parse(fs.readFileSync(file, 'utf8'));
+    }
+    catch (e){
+        console.log(e, 'readJsonFilesync')
+    }
 }
 
+function writeJson(obj, callback) {
+    fs.writeFileSync(file, JSON.stringify(obj) , 'utf-8'); 
+}
 function writeJsonFile(obj, callback) {
-        jsonfile.writeFile(file, obj, {flag: 'a'}, callback);
-    
+    jsonfile.writeFileSync(file, obj, {flag: 'a'}, callback); 
 }
 
 app.use('/api', router);

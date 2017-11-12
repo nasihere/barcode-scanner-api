@@ -1,4 +1,1 @@
-{"barcode_no":"123456789","status":1,"datetime":"2017-10-17T03:32:14.464Z","scanned":0,"info":"no information"}
-{"barcode_no":"1234567891","status":1,"datetime":"2017-10-17T03:32:33.694Z","scanned":0,"info":"no information"}
-{"barcode_no":"123","status":1,"datetime":"2017-10-17T03:41:06.138Z","scanned":0,"info":"no information"}
-{"barcode_no":"123456789","status":0,"scannedTime":"2017-10-17T03:41:12.694Z"}
+[{"barcode_no":"1111","datetime":"2017-11-12T00:21:45.418Z","scanned":2},{"barcode_no":"11112","datetime":"2017-11-12T00:21:53.309Z","scanned":2},{"barcode_no":"111124","datetime":"2017-11-12T00:22:06.960Z","scanned":2}]
