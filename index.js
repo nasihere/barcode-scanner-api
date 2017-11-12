@@ -15,10 +15,12 @@ var db = [];
 router.get('/', function(req, res) {
     res.json(db);  
 });
+
 router.get('/scan', function(req, res) {
     
     var barcode_no = req.query.barcode;
     
+    console.log('URL Hit', barcode_no)
     var dataObj = {
         barcode_no: barcode_no,
         datetime: new Date(),
@@ -80,7 +82,17 @@ function writeJson(obj, callback) {
 function writeJsonFile(obj, callback) {
     jsonfile.writeFileSync(file, obj, {flag: 'a'}, callback); 
 }
+app.use(function (req, res, next) {
 
+    // Website you wish to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    // Request methods you wish to allow
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+    // Pass to next layer of middleware
+    next();
+});
 app.use('/api', router);
 app.listen(port);
 console.log('Magic api happens on port ' + port);
